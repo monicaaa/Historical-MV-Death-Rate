@@ -14,10 +14,11 @@ ui <- fluidPage(
       # Copy the line below to make a slider range 
       sliderInput("slider", label = h3("Year Range"), min = 1934, 
                   max = 2014, value = c(1934, 2014)),
+
   
       # Copy the line below to make a set of radio buttons
       radioButtons("radio", label = h3("Select Sex"),
-                   choices = list("Male" = "Male", "Female" = "Female"), 
+                   choices = list("Men" = "Male", "Women" = "Female"), 
                    selected = "Male"),
       
       checkboxGroupInput("age", "Age Groups:",  
@@ -31,20 +32,34 @@ ui <- fluidPage(
     
     ),
     
-
-    
     mainPanel(
       plotOutput("mv_plot", click = "plot_click"),
       verbatimTextOutput("info")
     )
-  )
+    )
 )
 
+# reads in cleaned data from AWS
 mv_data <- read.csv(url("https://s3.amazonaws.com/shiny-app-data/absolute_differences_historical_bw.csv"))
+
+# function to define the break of x axis label for graph depending on selected year range
+# @param: min_value is the lower value in the sliders
+# @param: max_value is the upper value in the sliders
+
+def_break_length <- function(min_value, max_value){
+  total_range <- max_value-min_value
+  if (total_range > 30){
+    return(10)
+  } else if (total_range %in% (15:30)){
+    return(5)
+  } else{
+    return(1)
+  }
+}
 
 # Define server logic to plot various variables against mpg ----
 server <- function(input, output) {
-  
+
   output$mv_plot <- renderPlot({mv_data %>% 
     filter(age.cat %in% input$age,
            gender == input$radio,
@@ -60,15 +75,9 @@ server <- function(input, output) {
       theme(legend.position="bottom") +
       theme(legend.title=element_blank()) +
       theme(axis.title.x = element_blank()) +   # Remove x-axis label
-      ylab("Black-White Ratio in Motor Vehicle Death Rate") +      
-      scale_x_continuous(breaks = seq(1940, 2010, 10))   }
+      ylab(paste0("Black-White Ratio in Motor Vehicle Death Rate for ", input$radio)) +      
+      scale_x_continuous(breaks = seq(1940, 2015, def_break_length(input$slider[1], input$slider[2])))   }
 )
-  
-  # output$info <- renderPrint({
-  #   # Because it's a ggplot2, we don't need to supply xvar or yvar; if this
-  #   # were a base graphics plot, we'd need those.
-  #   nearPoints(mv_data, coordinfo = input$plot_click, addDist = TRUE)
-  # })
   
 }
 shinyApp(ui, server)
