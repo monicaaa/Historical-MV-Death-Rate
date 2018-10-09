@@ -9,6 +9,19 @@ Data source: 1934-1998 data came from the CDC HIST290 tables (https://www.cdc.go
 
 Monica King cleaned, wrangled, and aggregated the data. 
 
+Requirements
+-------
+R (preferably R Studio)
+
+Dependencies
+-------
+- shiny
+- ggplot2
+- magrittr
+- dplyr
+- rsconnect
+
+
 Get started
 -------
 1) Open app.r in R Studio
