@@ -28,19 +28,23 @@ ui <- fluidPage(
                     "Ages 25-44" = "age25.44",
                     "Ages 45-64" = "age45.64",
                     "Ages 65-84" = "age65.84"),
-                  selected = c("adjusted"))
+                  selected = c("adjusted")),
+      
+      # Input: Checkbox for whether the line is smoothed ----
+      checkboxInput("smooth", "3-Year Moving Average", TRUE)
     
     ),
     
     mainPanel(
-      plotOutput("mv_plot", click = "plot_click"),
-      verbatimTextOutput("info")
-    )
+      plotOutput("mv_plot")
     )
 )
 
+)
 # reads in cleaned data from AWS
-mv_data <- read.csv(url("https://s3.amazonaws.com/shiny-app-data/absolute_differences_historical_bw.csv"))
+mv_data <- read.csv(url("https://s3.amazonaws.com/shiny-app-data/absolute_differences_historical_bw.csv")) %>%
+  mutate(bw_asdr_perdiff = (bw_asdr-1)*100,
+         bw_asdr_perdiff.s = (bw_asdr.s-1)*100)
 
 # function to define the break of x axis label for graph depending on selected year range
 # @param: min_value is the lower value in the sliders
@@ -48,9 +52,9 @@ mv_data <- read.csv(url("https://s3.amazonaws.com/shiny-app-data/absolute_differ
 
 def_break_length <- function(min_value, max_value){
   total_range <- max_value-min_value
-  if (total_range > 30){
+  if (total_range > 40){
     return(10)
-  } else if (total_range %in% (15:30)){
+  } else if (total_range %in% (15:40)){
     return(5)
   } else{
     return(1)
@@ -64,19 +68,28 @@ server <- function(input, output) {
     filter(age.cat %in% input$age,
            gender == input$radio,
            year %in% (input$slider[1]:input$slider[2])) %>%
-      ggplot(aes(x=year, y=bw_asdr.s, group = age.cat, colour = age.cat)) +
-#      scale_colour_manual(values = c("#000000", "#e41a1c", "#377eb8", "#4daf4a",
-  #                                   "#984ea3", "#ff7f00")) +
+      ggplot(aes(x= year, 
+                 y= if(input$smooth){
+                   bw_asdr_perdiff.s
+                 }else{
+                   bw_asdr_perdiff
+                 }, 
+                 group = age.cat, colour = age.cat)) +
+      scale_colour_manual(name = "Age Groups",
+                          values = c("#000000", "#e41a1c", "#377eb8", "#4daf4a",
+                                     "#984ea3", "#ff7f00"),
+                          labels = c("Age-adjusted", "Ages 5-14", "Ages 15-24",
+                                     "Ages 25-44", "Ages 45-64", "Ages 65-84")) +
       geom_hline(yintercept=1, color = "grey") +
       geom_line() +
       theme(legend.position="bottom") +
       theme_bw()  +
       theme(text = element_text(size=16))+ 
-      theme(legend.position="bottom") +
-      theme(legend.title=element_blank()) +
+      theme(legend.position="right") +
       theme(axis.title.x = element_blank()) +   # Remove x-axis label
-      ylab(paste0("Black-White Ratio in Motor Vehicle Death Rate for ", input$radio)) +      
-      scale_x_continuous(breaks = seq(1940, 2015, def_break_length(input$slider[1], input$slider[2])))   }
+      ylab("Black-White % Difference in MV Death Rate") +      
+      scale_x_continuous(breaks = seq(1930, 2015, def_break_length(input$slider[1], input$slider[2]))) +
+      scale_y_continuous(breaks = seq(-75, 75, 10))}
 )
   
 }
