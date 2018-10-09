@@ -3,10 +3,11 @@ library(shiny)
 library(ggplot2)
 library(magrittr)
 library(dplyr)
+library(rsconnect)
 
 ui <- fluidPage(
   
-  titlePanel("Black-White Differences in Motor Vehicle Death Rates, 1934-2014"),
+  titlePanel("Historical Demographic Trends"),
   
   fluidPage(
     
@@ -36,7 +37,13 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-      plotOutput("mv_plot")
+      h3(textOutput("selected_var")),
+      p("Positive = black population experience higher MV death rates compared to white population",
+        style = "font-family: 'times'; font-si16pt"),
+      plotOutput("mv_plot"),
+      h6("Source: Historical CDC Vital Statistics Data"),
+      h6("Analysis and app built by Monica M. King")
+      
     )
 )
 
@@ -63,6 +70,10 @@ def_break_length <- function(min_value, max_value){
 
 # Define server logic to plot various variables against mpg ----
 server <- function(input, output) {
+  
+  output$selected_var <- renderText({ 
+    paste0("Black-White Differences in Motor Vehicle Death Rates for ", input$radio, "s, 1934-2014")
+  })
 
   output$mv_plot <- renderPlot({mv_data %>% 
     filter(age.cat %in% input$age,
@@ -80,18 +91,19 @@ server <- function(input, output) {
                                      "#984ea3", "#ff7f00"),
                           labels = c("Age-adjusted", "Ages 5-14", "Ages 15-24",
                                      "Ages 25-44", "Ages 45-64", "Ages 65-84")) +
-      geom_hline(yintercept=1, color = "grey") +
+      geom_hline(yintercept=1, color = "dark grey") +
       geom_line() +
       theme(legend.position="bottom") +
       theme_bw()  +
       theme(text = element_text(size=16))+ 
       theme(legend.position="right") +
       theme(axis.title.x = element_blank()) +   # Remove x-axis label
-      ylab("Black-White % Difference in MV Death Rate") +      
+      ylab("Black-White % Difference") +      
       scale_x_continuous(breaks = seq(1930, 2015, def_break_length(input$slider[1], input$slider[2]))) +
       scale_y_continuous(breaks = seq(-75, 75, 10))}
 )
   
 }
+
 shinyApp(ui, server)
 
