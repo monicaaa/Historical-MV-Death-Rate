@@ -1,5 +1,7 @@
 # Historical-MV-Death-Rate
-Demographic differences in motor vehicle death rates
+This is a Shiny App that visualizes historical demographic differences in motor vehicle death rates. 
+
+This app can be accessed at: https://monicaaa.shinyapps.io/historical-mv-death-rate-/
 
 Description
 ------
@@ -22,8 +24,7 @@ Dependencies
 - rsconnect
 
 
-Get started
+Using the App
 -------
 1) Open app.r in R Studio
-2) Click "Run App" or run the code "runApp()"
-
+2) Click "Run App" or run the code "runApp(<<APP_DIRECTORY>>)"
