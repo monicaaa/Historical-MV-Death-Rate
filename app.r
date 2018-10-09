@@ -107,7 +107,7 @@ server <- function(input, output) {
       theme(axis.title.x = element_blank()) + # Remove x-axis label
       ylab("Black-White % Difference") +      
       scale_x_continuous(breaks = seq(1930, 2015, def_break_length(input$slider[1], input$slider[2]))) +
-      scale_y_continuous(breaks = seq(-75, 75, 10))}
+      scale_y_continuous(breaks = seq(-80, 80, 10))}
 )
   
 }
