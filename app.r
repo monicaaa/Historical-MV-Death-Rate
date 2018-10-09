@@ -18,7 +18,7 @@ ui <- fluidPage(
       
       # Makes slider range for years
       sliderInput("slider", label = h3("Year Range"), min = 1934, 
-                  max = 2014, value = c(1934, 2014)),
+                  max = 2014, value = c(1934, 2014), sep = ""),
 
   
       # Makes radio buttons for sex
