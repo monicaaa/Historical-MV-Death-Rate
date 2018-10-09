@@ -11,5 +11,6 @@ Monica King cleaned, wrangled, and aggregated the data.
 
 Get started
 -------
-
+1) Open app.r in R Studio
+2) Click "Run App" or run the code "runApp()"
 
